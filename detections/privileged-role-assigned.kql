@@ -1,0 +1,25 @@
+// Privileged role assigned
+// Table:    AuditLogs
+// MITRE:    T1098 (Account Manipulation), tactics Persistence / Privilege Escalation
+// Severity: High
+// Status:   Deployed. Fired on lab test data 2026-11-17.
+//
+// A user is added to a high-privilege Entra role. Written to work when
+// PIM is active, where the operation is named
+// "Add member to role in PIM completed (permanent)" and the role and user
+// sit in different TargetResources entries.
+//
+// Known gaps: hard-coded role list; does not cover eligible (just-in-time)
+// PIM assignments or role-assignable group membership changes.
+
+AuditLogs
+| where OperationName has "member to role"
+| where OperationName has "completed"
+| mv-apply tr = TargetResources on (
+    summarize Role   = take_anyif(tostring(tr.displayName),       tostring(tr.type) == "Role"),
+              Target = take_anyif(tostring(tr.userPrincipalName), tostring(tr.type) == "User")
+  )
+| extend Actor = tostring(InitiatedBy.user.userPrincipalName)
+| where Role has_any ("Global Administrator", "Privileged Role Administrator",
+                      "Security Administrator", "User Administrator")
+| project TimeGenerated, OperationName, Actor, Target, Role

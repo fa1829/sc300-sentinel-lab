@@ -1,0 +1,14 @@
+# Raw exports from the portal contain the real tenant name and IP addresses.
+# Keep them out of the repo; commit only sanitised copies under sample-data/.
+query_data*.csv
+incident_cases*.csv
+*-raw.csv
+raw/
+
+# Secrets and local files
+.env
+*.pem
+*.key
+.DS_Store
+Thumbs.db
+*.zip

@@ -1,0 +1,33 @@
+// Ad hoc queries used while building and checking the lab.
+// Run one at a time in Sentinel > Logs (KQL mode).
+
+// 1. Is sign-in data arriving?
+SigninLogs
+| project TimeGenerated, UserPrincipalName, ResultType, ResultDescription, IPAddress, Location
+| order by TimeGenerated desc
+
+// 2. Which result codes am I seeing, and how often?
+SigninLogs
+| summarize Events = count() by ResultType, ResultDescription
+| order by Events desc
+
+// 3. Role membership changes, both additions and removals (PIM-aware)
+AuditLogs
+| where OperationName has_any ("member to role", "member from role")
+| where OperationName has "completed"
+| mv-apply tr = TargetResources on (
+    summarize Role   = take_anyif(tostring(tr.displayName),       tostring(tr.type) == "Role"),
+              Target = take_anyif(tostring(tr.userPrincipalName), tostring(tr.type) == "User")
+  )
+| extend Actor = tostring(InitiatedBy.user.userPrincipalName)
+| project TimeGenerated, OperationName, Actor, Target, Role
+
+// 4. Did my rules produce alerts? (check this before assuming a rule is broken)
+SecurityAlert
+| where TimeGenerated > ago(1d)
+| project TimeGenerated, AlertName, AlertSeverity, ProviderName
+
+// 5. Did the alerts become incidents?
+SecurityIncident
+| where TimeGenerated > ago(1d)
+| project TimeGenerated, Title, Severity, Status

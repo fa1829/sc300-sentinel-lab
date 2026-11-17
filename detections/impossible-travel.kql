@@ -1,0 +1,22 @@
+// Impossible travel (simplified)
+// Table:    SigninLogs
+// MITRE:    T1078 (Valid Accounts), tactic Initial Access
+// Severity: Medium
+// Status:   NOT TESTED. The lab has no successful sign-ins from two countries yet.
+//
+// The same account signs in successfully from more than one country
+// within a one-hour bin.
+//
+// Known gaps: compares country names, not distance and time; VPNs, mobile
+// carriers and cloud proxies trigger it for legitimate users. Entra ID
+// Protection does this properly; this version is a KQL exercise.
+
+SigninLogs
+| where ResultType == "0"                // successful sign-in
+| extend Country = tostring(LocationDetails.countryOrRegion)
+| where isnotempty(Country)
+| summarize Countries   = dcount(Country),
+            CountryList = make_set(Country),
+            IPs         = make_set(IPAddress)
+    by UserPrincipalName, bin(TimeGenerated, 1h)
+| where Countries > 1
