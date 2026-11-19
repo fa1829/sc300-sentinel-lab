@@ -67,7 +67,7 @@ The fix was to match on substrings and to select the role and user by their `typ
 
 File: [impossible-travel.kql](../detections/impossible-travel.kql)
 
-**Status: not tested.** The lab has no successful sign-ins yet, and all activity so far comes from one country.
+**Status: not tested.** Successful sign-ins now exist (from 2026-11-17), but all from one country, so the rule has nothing to match yet.
 
 **Idea.** The same account signing in successfully from two countries within an hour is unlikely to be one person.
 
@@ -79,4 +79,4 @@ File: [impossible-travel.kql](../detections/impossible-travel.kql)
 - VPNs, mobile carriers and cloud proxies produce exactly this pattern for legitimate users.
 - Entra ID Protection already does a proper version of this with learned behaviour. This rule is for learning KQL, not for replacing that.
 
-**To test it.** Complete MFA enrolment for one test user so a sign-in succeeds, then sign in again through a VPN exit in another country within the hour.
+**To test it.** Sign in as a test user normally, then sign in again through a VPN exit in another country within the same hour.

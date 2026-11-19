@@ -27,6 +27,15 @@ Fill in **Status** with: not started, in progress, or done.
 
 Relevance to SC-300: monitoring and reporting on identity (sign-in and audit logs, diagnostic settings), PIM role assignment, licence requirements for identity features.
 
+### 2026-11-17 to 2026-11-18
+
+- Connected Power BI Desktop to the Log Analytics workspace using a KQL query exported as an M query.
+- Hit "Access to the resource is forbidden": Global Administrator (Entra role) gave no access to the workspace (Azure resource). Fixed with a Log Analytics Reader assignment.
+- Learned result codes 50074 and 50140 and moved interrupts into their own category.
+- Built DAX measures and most of a sign-in monitoring dashboard.
+
+Relevance to SC-300: the difference between Entra roles and Azure RBAC, least-privilege role choice, sign-in log analysis.
+
 ### Template for new entries
 
 ```

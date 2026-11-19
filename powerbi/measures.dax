@@ -1,0 +1,24 @@
+// DAX measures for the identity sign-in dashboard
+// Table: SignIns (from SigninLogs via the Log Analytics M query)
+
+Total Sign-ins =
+COUNTROWS ( SignIns )
+
+Failed Sign-ins =
+CALCULATE ( COUNTROWS ( SignIns ), SignIns[Outcome] <> "Success" )
+
+Failure Rate =
+DIVIDE ( [Failed Sign-ins], [Total Sign-ins] )
+// Format as Percentage in Measure tools.
+
+Accounts Targeted =
+CALCULATE (
+    DISTINCTCOUNT ( SignIns[UserPrincipalName] ),
+    SignIns[Outcome] = "Bad password"
+)
+
+// Calculated column (not a measure): sign-in time rounded down to the hour, UTC.
+// Requires TimeGenerated to be of type Date/Time.
+Hour =
+DATE ( YEAR ( SignIns[TimeGenerated] ), MONTH ( SignIns[TimeGenerated] ), DAY ( SignIns[TimeGenerated] ) )
+    + TIME ( HOUR ( SignIns[TimeGenerated] ), 0, 0 )

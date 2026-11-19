@@ -44,3 +44,15 @@ Sentinel in the Azure portal is scheduled for retirement on 2027-03-31, after wh
 ## The right tenant matters more than the available credit
 
 My student subscription had credit but sat in a tenant where I have no admin rights. The detections needed a tenant I administer, even though that meant starting a new trial.
+
+## Entra roles and Azure roles are separate systems
+
+Power BI signed in to the Log Analytics API as the tenant's Global Administrator and was still refused ("Access to the resource is forbidden"). Global Administrator is an Entra directory role; the workspace is an Azure resource governed by Azure RBAC. The fix was a **Log Analytics Reader** assignment on the workspace. Details in [05-powerbi-pipeline.md](05-powerbi-pipeline.md).
+
+## Not every non-zero result code is a failure
+
+`50140` is the "Stay signed in?" prompt and `50074` is an MFA challenge. Counting every non-zero `ResultType` as a failure overstates attacks. Interrupts need their own category.
+
+## An exported query can leak identifiers
+
+Log Analytics' "Export to Power BI (M query)" file embeds the workspace ID, and a `.pbix` built on live data embeds real sign-in records. Neither belongs in a public repo; both are excluded in `.gitignore`.

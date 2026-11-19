@@ -5,6 +5,13 @@ incident_cases*.csv
 *-raw.csv
 raw/
 
+# Power BI: the exported M query embeds the workspace ID, and a .pbix built
+# on live data embeds real sign-in records. Commit only a sample-data build,
+# named *-sample.pbix.
+PowerBIQuery*.txt
+*.pbix
+!*-sample.pbix
+
 # Secrets and local files
 .env
 *.pem
