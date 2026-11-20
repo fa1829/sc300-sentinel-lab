@@ -18,13 +18,14 @@ A working record of how I am learning Microsoft identity and security operations
 | [docs/07-kql-notes.md](docs/07-kql-notes.md) | KQL patterns I learned from my own queries |
 | [docs/sc300-study-log.md](docs/sc300-study-log.md) | SC-300 study tracker and dated log |
 | [detections/](detections/) | KQL for each rule, one file per rule |
-| [powerbi/](powerbi/) | DAX measures and report layout for the sign-in dashboard |
+| [powerbi/](powerbi/) | DAX measures and report layout: sign-in page and incidents page |
+| [diagrams/](diagrams/) | Pipeline diagram (PNG) |
 | [sample-data/](sample-data/) | Sanitised query output used to validate the rules |
 | [screenshots/](screenshots/) | Evidence screenshots (redacted before commit) |
 
 ## Current status
 
-Last updated: 2026-11-18
+Last updated: 2026-11-19
 
 | Item | Status |
 |---|---|
@@ -38,12 +39,15 @@ Last updated: 2026-11-18
 | Incident triage and closure notes | To do |
 | Power BI: KQL to M query connection | Done |
 | Power BI: sign-in dashboard | In progress |
+| Power BI: incidents page (SecurityIncident) | To do |
 | Power BI: publish to the Power BI service | To do |
 | Logic Apps playbook (SOAR) | To do |
 | Exported rule JSON | To do |
 | SC-300 exam | Studying |
 
 ## Lab architecture
+
+![Lab pipeline](diagrams/pipeline.png)
 
 ```
 Entra ID lab tenant (P2 trial licence)

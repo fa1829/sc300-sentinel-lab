@@ -22,3 +22,18 @@ CALCULATE (
 Hour =
 DATE ( YEAR ( SignIns[TimeGenerated] ), MONTH ( SignIns[TimeGenerated] ), DAY ( SignIns[TimeGenerated] ) )
     + TIME ( HOUR ( SignIns[TimeGenerated] ), 0, 0 )
+
+// ---- Incidents page (table: Incidents, from SecurityIncident) ----
+
+Total Incidents =
+COUNTROWS ( Incidents )
+
+Open Incidents =
+CALCULATE ( COUNTROWS ( Incidents ), Incidents[Status] <> "Closed" )
+
+High Severity Incidents =
+CALCULATE ( COUNTROWS ( Incidents ), Incidents[Severity] = "High" )
+
+Mean Hours to Close =
+AVERAGE ( Incidents[HoursToClose] )
+// Only closed incidents have a value, so this is the mean over closed incidents.

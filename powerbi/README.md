@@ -32,6 +32,20 @@ All DAX is in [measures.dax](measures.dax).
 | Table | IPAddress, Accounts Targeted, Failed Sign-ins | 780, 190, 480, 200 |
 | Clustered bar chart | Y: UserPrincipalName, X: Failed Sign-ins, Legend: Outcome | 780, 410, 480, 290 |
 
+## Page 2: Incidents (to do)
+
+Source: `SecurityIncident`, one row per incident. Query and steps: [../docs/05-powerbi-pipeline.md](../docs/05-powerbi-pipeline.md#second-pipeline-sentinel-incidents-to-power-bi).
+
+| Visual | Fields |
+|---|---|
+| 4 cards | Total Incidents, Open Incidents, High Severity Incidents, Mean Hours to Close |
+| Clustered column chart | X: Severity, Y: Total Incidents, Legend: Status |
+| Donut chart | Legend: Classification, Values: Total Incidents |
+| Table | IncidentNumber, Title, Severity, Status, Tactics, CreatedTime, HoursToClose |
+| Slicer | Severity |
+
+With two lab incidents, this page is about proving the pipeline works, not about the numbers.
+
 ## What the dashboard shows from the lab data
 
 - A spike of bad-password failures across five accounts from one IP in a few minutes overnight. This is the same password spray the Sentinel analytics rule detects.

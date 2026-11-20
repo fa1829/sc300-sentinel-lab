@@ -75,3 +75,44 @@ The API returns `TimeGenerated` as date/time with time zone. Changing it to plai
 - Rebuild a shareable copy of the report from `sample-data/signin-sample.csv` so the `.pbix` file can be committed without live tenant data.
 
 Report details (measures and layout): [../powerbi/README.md](../powerbi/README.md).
+
+---
+
+## Second pipeline: Sentinel incidents to Power BI
+
+Status: to do. Close the lab incidents first (see [03-incident-triage.md](03-incident-triage.md)); otherwise status and time-to-close have nothing to show.
+
+### Why
+
+The sign-in page shows raw activity. An incident page shows the SOC side: how many incidents, how severe, how many are still open, and how long they take to close. That is the reporting a security manager actually asks for.
+
+### Source query
+
+Sentinel writes a new row to `SecurityIncident` every time an incident changes (created, assigned, closed). `arg_max` keeps only the latest row per incident.
+
+```kql
+SecurityIncident
+| where TimeGenerated > ago(30d)
+| summarize arg_max(TimeGenerated, *) by IncidentNumber
+| extend Owner        = tostring(Owner.assignedTo),
+         Tactics      = strcat_array(AdditionalData.tactics, ", "),
+         AlertCount   = toint(AdditionalData.alertsCount),
+         HoursToClose = iff(isnotempty(ClosedTime),
+                            datetime_diff('minute', ClosedTime, CreatedTime) / 60.0,
+                            real(null))
+| project IncidentNumber, Title, Severity, Status, Classification, Owner,
+          Tactics, AlertCount, CreatedTime, ClosedTime, HoursToClose
+```
+
+If `Tactics` or `AlertCount` errors or comes back empty, check the field names under `AdditionalData` in one result row and adjust; drop them if needed.
+
+### Steps
+
+1. Run the query in Sentinel > Logs and confirm one row per incident.
+2. Export > Export to Power BI (as an M query).
+3. In Power BI Desktop: Home > Transform data. In Power Query, New Source > Blank query > Advanced Editor, paste, Done. The existing Log Analytics credential is reused.
+4. Change `CreatedTime` and `ClosedTime` to Date/Time. Rename the query `Incidents`. Close & Apply.
+5. Add the incident measures from [../powerbi/measures.dax](../powerbi/measures.dax).
+6. Add a second report page named **Incidents** (layout in [../powerbi/README.md](../powerbi/README.md)).
+
+`Owner` contains an email address. Blur it in screenshots.
