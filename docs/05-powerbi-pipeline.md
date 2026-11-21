@@ -2,7 +2,7 @@
 
 Goal: a sign-in monitoring dashboard in Power BI, fed directly from the Log Analytics workspace behind Microsoft Sentinel.
 
-Status: connection working, dashboard in progress, publishing to the Power BI service not done yet.
+Status: connection working, report published to the Power BI service (Fabric trial), daily scheduled refresh working. Incidents page still to do.
 
 ## How it works
 
@@ -68,10 +68,17 @@ The API returns `TimeGenerated` as date/time with time zone. Changing it to plai
 - Selecting a chart type while a visual is selected **changes** that visual instead of adding a new one. Click an empty part of the canvas first.
 - Stacking unrelated measures (a percentage on top of counts) in one column chart produced a misleading picture. One stack should be parts of one whole.
 
+## Publishing and refresh
+
+1. Started the 60-day Power BI / Fabric trial as the lab tenant work account.
+2. Power BI Desktop: signed in with the same account, then Publish > My workspace.
+3. The service then refused scheduled refresh: *"at least one data source is missing credentials"*. The Desktop sign-in does not travel with the file.
+4. Fix: My workspace > the **semantic model** (not the report) > Settings > Data source credentials > Edit credentials > OAuth2, privacy level Organizational > sign in. Then Refresh > daily schedule on.
+5. Verified with Refresh now and Refresh history; the report then showed sign-ins from later dates.
+
 ## Still to do
 
 - Finish the page layout and colour series by meaning (success green, bad password red, interrupted amber, other grey).
-- Publish to the Power BI service under the lab tenant account, on a Fabric/Power BI trial.
 - Rebuild a shareable copy of the report from `sample-data/signin-sample.csv` so the `.pbix` file can be committed without live tenant data.
 
 Report details (measures and layout): [../powerbi/README.md](../powerbi/README.md).

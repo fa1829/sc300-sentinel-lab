@@ -1,35 +1,88 @@
-# 03. Incident triage
+# 03. Incident response
 
-Sentinel incidents now surface in the Microsoft Defender portal (security.microsoft.com), under Cases / Incidents.
+Sentinel incidents surface in the Microsoft Defender portal (security.microsoft.com) under Incidents. This page is the runbook I follow and the record of each lab incident.
+
+The phases follow the NIST incident handling lifecycle (preparation; detection and analysis; containment, eradication and recovery; post-incident activity), scaled down to a lab.
 
 ## Incidents generated so far
 
 | ID | Name | Severity | Category | Created (UTC) | Entities | Source |
 |---|---|---|---|---|---|---|
 | 2 | Privileged role assigned | High | Privilege Escalation | 2026-11-17 02:56 | 2 accounts | Scheduled detection, Microsoft Sentinel |
-| 1 | Password spray: one IP, many accounts | Medium | Credential Access | 2026-11-17 02:47 | none listed | Scheduled detection, Microsoft Sentinel |
+| 1 | Password spray: one IP, many accounts | Medium | Credential Access | 2026-11-17 02:47 | 1 IP | Scheduled detection, Microsoft Sentinel |
 
-Incident 1 lists no impacted assets because its only mapped entity is an IP address, which the portal does not count as an asset.
+## Runbook
 
-## Triage notes
+### 1. Triage (first 15 minutes)
 
-To be filled in as each incident is worked. Template:
+1. Open the incident. Assign it to yourself and set status to **Active / In progress**.
+2. Read the alert: which rule fired, which entities (accounts, IPs), what time window.
+3. Decide: is this expected activity, a true positive, or a false positive? Write the reason in a comment.
+
+### 2. Investigate
+
+Run the queries below in Sentinel > Logs or Defender > Advanced hunting, replacing the placeholders.
+
+Password spray: what else did the source IP do, and did anything succeed?
+
+```kql
+SigninLogs
+| where IPAddress == "<source IP>"
+| summarize Attempts = count(),
+            Accounts = dcount(UserPrincipalName),
+            Successes = countif(ResultType == "0"),
+            First = min(TimeGenerated), Last = max(TimeGenerated)
+    by IPAddress
+```
+
+```kql
+SigninLogs
+| where IPAddress == "<source IP>" and ResultType == "0"
+| project TimeGenerated, UserPrincipalName, AppDisplayName, Location
+```
+
+Privileged role: what did the account do while it held the role?
+
+```kql
+AuditLogs
+| where TimeGenerated between (datetime(<assigned>) .. datetime(<removed>))
+| where tostring(InitiatedBy.user.userPrincipalName) == "<target account>"
+| project TimeGenerated, OperationName, Result, TargetResources
+```
+
+### 3. Contain and recover (if it were real)
+
+| Incident | Containment | Recovery |
+|---|---|---|
+| Password spray, no success | Block the source IP with a Conditional Access named location (exclude break-glass accounts) | Confirm MFA is enforced for all targeted accounts |
+| Password spray, with a success | Revoke sessions for the compromised account; force a password reset; block the IP | Review that account's sign-ins and audit activity after the success |
+| Unapproved privileged role | Remove the role; revoke the account's sessions | Review every change the account made while privileged; require PIM approval for that role |
+
+In the lab I carry out the actions that are safe and reversible (revoking sessions and forcing password resets for test users), and document the others.
+
+### 4. Close
+
+Set classification and determination, add a closing comment, close. For lab-generated activity: **Informational, expected activity > Security testing**.
+
+## Incident records
 
 ### Incident 1: Password spray
 
-- **What fired:**
-- **What I checked:** (source IP, accounts targeted, whether any attempt succeeded, time window)
-- **Finding:**
+- **Triage:** _
+- **Investigation findings:** _ (source IP, accounts targeted, attempt count, any successes)
+- **Actions taken:** _
 - **Classification:** Informational, expected activity > Security testing
-- **What I would do if this were real:** (block or investigate the IP, check for any success from it, reset passwords for targeted accounts, confirm MFA coverage)
+- **Time to close:** _
+- **What I would change:** _
 
 ### Incident 2: Privileged role assigned
 
-- **What fired:**
-- **What I checked:** (who made the assignment, who received it, whether it was removed, what the account did while privileged)
-- **Finding:**
+- **Triage:** _
+- **Investigation findings:** _ (who assigned, who received, duration, activity while privileged)
+- **Actions taken:** _
 - **Classification:** Informational, expected activity > Security testing
-- **What I would do if this were real:** (confirm with the actor out of band, review the target account's sign-ins and audit activity during the window, remove the role if unapproved)
+- **Time to close:** _
+- **What I would change:** _
 
 ## Portal behaviour worth knowing
 

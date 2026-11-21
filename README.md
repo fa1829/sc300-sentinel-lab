@@ -25,7 +25,7 @@ A working record of how I am learning Microsoft identity and security operations
 
 ## Current status
 
-Last updated: 2026-11-19
+Last updated: 2026-11-20
 
 | Item | Status |
 |---|---|
@@ -38,9 +38,9 @@ Last updated: 2026-11-19
 | Rule: impossible travel | Query written. Successful sign-ins now exist, but all from one country, so **not yet tested** |
 | Incident triage and closure notes | To do |
 | Power BI: KQL to M query connection | Done |
-| Power BI: sign-in dashboard | In progress |
+| Power BI: sign-in dashboard | Built; layout polish in progress |
 | Power BI: incidents page (SecurityIncident) | To do |
-| Power BI: publish to the Power BI service | To do |
+| Power BI: published to the Power BI service, scheduled refresh working | Done |
 | Logic Apps playbook (SOAR) | To do |
 | Exported rule JSON | To do |
 | SC-300 exam | Studying |

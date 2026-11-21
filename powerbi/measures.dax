@@ -5,7 +5,10 @@ Total Sign-ins =
 COUNTROWS ( SignIns )
 
 Failed Sign-ins =
-CALCULATE ( COUNTROWS ( SignIns ), SignIns[Outcome] <> "Success" )
+CALCULATE ( COUNTROWS ( SignIns ), KEEPFILTERS ( SignIns[Outcome] <> "Success" ) )
+// KEEPFILTERS matters: without it, CALCULATE replaces the Outcome filter coming
+// from a visual or slicer, so every Outcome slice showed the same total (bug found
+// in a pie chart where "Success" showed 33 failed sign-ins).
 
 Failure Rate =
 DIVIDE ( [Failed Sign-ins], [Total Sign-ins] )
@@ -14,7 +17,7 @@ DIVIDE ( [Failed Sign-ins], [Total Sign-ins] )
 Accounts Targeted =
 CALCULATE (
     DISTINCTCOUNT ( SignIns[UserPrincipalName] ),
-    SignIns[Outcome] = "Bad password"
+    KEEPFILTERS ( SignIns[Outcome] = "Bad password" )
 )
 
 // Calculated column (not a measure): sign-in time rounded down to the hour, UTC.
@@ -29,10 +32,10 @@ Total Incidents =
 COUNTROWS ( Incidents )
 
 Open Incidents =
-CALCULATE ( COUNTROWS ( Incidents ), Incidents[Status] <> "Closed" )
+CALCULATE ( COUNTROWS ( Incidents ), KEEPFILTERS ( Incidents[Status] <> "Closed" ) )
 
 High Severity Incidents =
-CALCULATE ( COUNTROWS ( Incidents ), Incidents[Severity] = "High" )
+CALCULATE ( COUNTROWS ( Incidents ), KEEPFILTERS ( Incidents[Severity] = "High" ) )
 
 Mean Hours to Close =
 AVERAGE ( Incidents[HoursToClose] )

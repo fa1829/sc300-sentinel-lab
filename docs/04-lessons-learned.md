@@ -56,3 +56,13 @@ Power BI signed in to the Log Analytics API as the tenant's Global Administrator
 ## An exported query can leak identifiers
 
 Log Analytics' "Export to Power BI (M query)" file embeds the workspace ID, and a `.pbix` built on live data embeds real sign-in records. Neither belongs in a public repo; both are excluded in `.gitignore`.
+
+## A dashboard can look plausible and still be wrong
+
+A pie chart of failed sign-ins by outcome showed four equal slices of 33, including "Success". The measure used `CALCULATE(..., SignIns[Outcome] <> "Success")`, and a filter argument on a column **replaces** any filter on that column coming from the visual, so every slice computed the same overall total. Wrapping the condition in `KEEPFILTERS` makes it combine with the visual's filter instead. The slicer was silently affected by the same bug.
+
+Check: a measure filtered to "not Success" must return 0 for the Success slice. Test measures against a case where you know the answer.
+
+## Publishing is not refreshing
+
+A report published from Power BI Desktop carries a snapshot of the data, but not the data-source sign-in. Scheduled refresh in the service stayed disabled ("at least one data source is missing credentials") until OAuth2 credentials were entered on the **semantic model's** settings page, not the workspace settings.
